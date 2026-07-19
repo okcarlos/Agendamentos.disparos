@@ -20,21 +20,15 @@ async function criarPasta(nome) {
     const drive = await getDrive();
 
     const resposta = await drive.files.create({
-
-        requestBody: {
-
-            name: nome,
-
-            mimeType: "application/vnd.google-apps.folder",
-
-            parents: [PASTA_RAIZ]
-
-        },
-
-        fields: "id"
-
-    });
-
+    requestBody: {
+        name: nome,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [PASTA_RAIZ]
+    },
+    fields: "id",
+    supportsAllDrives: true
+});
+    
     return resposta.data.id;
 
 }
@@ -44,27 +38,19 @@ async function enviarArquivo(arquivo, nomeArquivo, pastaId) {
     const drive = await getDrive();
 
     const resposta = await drive.files.create({
+    requestBody: {
+        name: nomeArquivo,
+        parents: [pastaId]
+    },
+    media: {
+        mimeType: arquivo.mimetype,
+        body: Readable.from(arquivo.buffer)
+    },
+    fields: "id",
+    supportsAllDrives: true
+});
 
-        requestBody: {
-
-            name: nomeArquivo,
-
-            parents: [pastaId]
-
-        },
-
-        media: {
-
-            mimeType: arquivo.mimetype,
-
-            body: Readable.from(arquivo.buffer)
-
-        },
-
-        fields: "id"
-
-    });
-
+    
     await drive.permissions.create({
 
         fileId: resposta.data.id,
